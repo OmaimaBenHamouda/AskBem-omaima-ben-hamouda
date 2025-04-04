@@ -1,0 +1,17 @@
+{
+    "name": "omaima/askbem_omaima_benhamouda",
+    "autoload": {
+        "psr-4": {
+            "Omaima\\AskbemOmaimaBenhamouda\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Omaima",
+            "email": "omaben23@bemen3.cat"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.11"
+    }
+}

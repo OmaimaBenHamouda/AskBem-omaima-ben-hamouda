@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class SignUpScreen extends StatefulWidget {
 
@@ -14,8 +16,41 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
 
+
+  final _nameController = TextEditingController();
+  final _surnameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _obscureText = true; // Variable para manejar la visibilidad de la contraseña
 
+  Future<void> _signUp() async {
+
+     final url = Uri.parse('http://localhost/askbem_omaima_benhamouda/assets/apis/signup.php'); // URL de la API
+     final response = await http.post(
+      url,
+      body: json.encode({
+        'nom': _nameController.text,
+        'cognoms': _surnameController.text,
+        'correu': _emailController.text,
+        'contrasenya': _passwordController.text,
+        // Suponiendo que el rol se puede establecer en el servidor o por defecto es 'alumne'.
+        'rol': 'alumne', 
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['message'] == 'Usuario registrado exitosamente') {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registro exitoso')));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${data['message']}')));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error de conexión')));
+    }
+  }
 
  @override
   Widget build(BuildContext context) {
@@ -30,7 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               children: [
                 // Logo
                  Image.asset(
-                    'assets/logo.png',  // Ruta de la imagen en tus assets
+                    'images/logo.png',  // Ruta de la imagen en tus assets
                 ),
                                 const SizedBox(height: 20),
 
@@ -57,7 +92,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _signUp,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFF4361EE),
                       shape: RoundedRectangleBorder(
@@ -98,7 +133,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: Color(0xFF36454F),
 ),
                         ),
-                        icon: Image.asset('assets/google.png', width: 24),
+                        icon: Image.asset('images/google.png', width: 24),
                         style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: const BorderSide(color: Colors.grey),
@@ -150,6 +185,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       children: [
         // Input para Nombre
         TextFormField(
+         controller: _nameController,
           decoration: InputDecoration(
             labelText: 'Nom',
               labelStyle: TextStyle(
@@ -179,6 +215,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         const SizedBox(height: 15),
         // Input para Apellidos
         TextFormField(
+        controller: _surnameController,
           decoration: InputDecoration(
             labelText: 'Cognoms',
             labelStyle: TextStyle(
@@ -210,6 +247,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
 Widget _buildEmailInput() {
   return TextFormField(
+     controller: _emailController,
     decoration: InputDecoration(
       labelText: 'Email',
       labelStyle: TextStyle(
@@ -237,6 +275,7 @@ Widget _buildEmailInput() {
 
   Widget _buildPasswordInput() {
     return TextFormField(
+    controller: _passwordController,
       obscureText: _obscureText,
       decoration: InputDecoration(
         labelText: 'Contrasenya',
